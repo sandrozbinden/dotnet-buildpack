@@ -11,7 +11,6 @@ fi
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
-PROJECT=src/NotePro
 # This is where the buildpack is stored
 BUILDPACK_DIR=`cd $(dirname $0); cd ..; pwd`
 
@@ -104,7 +103,6 @@ ln -s ${BUILD_DIR}/dotnet /app
 export PATH="/app/dotnet:${PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 
-echo "Try to fins project file in ${SRC_DIR}/${PROJECT}"
 
 if [ -n "$PROJECT" ]; then
 	PROJECT_JSON_FILE=${SRC_DIR}/${PROJECT}
@@ -113,7 +111,7 @@ elif [ -e ${DEPLOYMENT_FILE_LOCATION} ]; then
 	PROJECT_JSON_FILE=${SRC_DIR}/$(awk -F "=" '/project/ {print $2}' ${DEPLOYMENT_FILE_LOCATION} | tr -d ' ')
 	echo "Project file configured in .deployment file"
 else
-	PROJECT_JSON_FILES=$(find ${SRC_DIR}/. -maxdepth 5 -iname "project.json")
+	PROJECT_JSON_FILES=$(find ${SRC_DIR}/. -maxdepth 5 -iname "project.json" -not -path "**/test/**)
 	printf 'Found %s project.json files\n' $(echo "$PROJECT_JSON_FILES" | wc -l | tr -d ' ')
 	PROJECT_JSON_FILE=$(echo "$PROJECT_JSON_FILES" | head -1)
 	PROJECT_JSON_FILE=$(readlink -m $PROJECT_JSON_FILE)
